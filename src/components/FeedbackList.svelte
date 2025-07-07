@@ -1,6 +1,10 @@
 <script lang="ts">
-  import { handleDeleteFeedback } from "$lib/handlers/feedback_handlers.js";
-  import { Feedbacks } from "$lib/stores/feedback_store.js";
+  import {
+    handleDeleteFeedback,
+    handleEditSave,
+    handleFeedbackCreate,
+  } from "$lib/handlers/feedback_handlers.js";
+  import { FeedbackStore } from "$lib/stores/feedback_store.js";
   import Divider from "./Divider.svelte";
   import FeedbackForm from "./FeedbackForm.svelte";
   import FeedbackItem from "./FeedbackItem.svelte";
@@ -25,21 +29,16 @@
     { label: "10", value: "10", isSelected: true },
   ];
 
-  $: totalCount = $Feedbacks.length;
-  $: average = $Feedbacks.reduce((a, fb) => a + fb.rating, 0) / totalCount;
+  $: totalCount = $FeedbackStore.length;
+  $: average = $FeedbackStore.reduce((a, fb) => a + fb.rating, 0) / totalCount;
 
-  const handleSubmit = (value: string) => {
+  const handleSubmit = async (value: string) => {
     const rating = ratings.find((item) => item.isSelected);
-    $Feedbacks = [
-      {
-        id: $Feedbacks.length + 1,
-        text: value,
-        rating: Number(rating?.value || 10),
-      },
-      ...$Feedbacks,
-    ];
+    handleFeedbackCreate({
+      rating: Number(rating?.value) || 1,
+      value: value,
+    });
     feedbackValue = "";
-    //    //
   };
   const handleRatingChange = (value: string) => {
     ratings = ratings.map((item) => {
@@ -56,21 +55,6 @@
       }
     });
   };
-
-  const handleEditSave = (id: any, value: string) => {
-    Feedbacks.update((prev) => {
-      return prev.map((item) => {
-        if (item?.id === id) {
-          console.log(id, value, item);
-          return {
-            ...item,
-            text: value,
-          };
-        } else return item;
-      });
-    });
-    console.log(id, value);
-  };
 </script>
 
 <div class="flex flex-col gap-5 p-3 w-5xl">
@@ -82,7 +66,7 @@
   />
   <FeedbackStats {average} {totalCount} />
   <Divider />
-  {#each $Feedbacks as fb}
+  {#each $FeedbackStore as fb}
     <FeedbackItem
       item={fb}
       onDelete={handleDeleteFeedback}

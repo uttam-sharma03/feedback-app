@@ -8,7 +8,7 @@
     rating={item.rating}
     handleClick={onDelete}
     text={item.text}
-    id={item.id}
+    id={item._id}
     {onEditSave}
   />
 </div>
