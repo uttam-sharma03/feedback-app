@@ -5,3 +5,4 @@ export const createCollection = () => {
   db.createCollection("feedback");
 };
 export const feedbackCollection = db.collection<FeedbackModel>("feedback");
+
